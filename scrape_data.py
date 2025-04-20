@@ -312,8 +312,8 @@ def transform_sg_public_holidays(dfs):
 
 # ===== MAIN EXECUTION FUNCTION =====
 
-def main():
-    """Main execution function to demonstrate ETL workflow"""
+def fetch_all_data():
+    """Extract and transform all data, returning a dictionary of DataFrames"""
     # API keys
     ura_access_key = "fb1d226d-6f7f-4ec4-b678-247dee275ca7"
     stb_api_key = "r4VgRmHwVhs5uG1WlqXzprvFWCSK8lyf"
@@ -325,7 +325,7 @@ def main():
     ]
     
     # Extract data
-    print("Extracting data...")
+    print("=== EXTRACTING DATA ===")
     ura_data = extract_ura_data(ura_access_key)
     weather_data = extract_weather_data()
     events_data = extract_events_data(stb_api_key)
@@ -333,34 +333,30 @@ def main():
     holiday_data = extract_sg_public_holidays(sg_holiday_dataset_ids)
     
     # Transform data
-    print("Transforming data...")
+    print("=== TRANSFORMING DATA ===")
     ura_dfs = transform_ura_data(ura_data)
     weather_df = transform_weather_data(weather_data)
     events_df = transform_events_data(events_data)
     traffic_df = transform_traffic_incidents(traffic_data)
     holiday_df = transform_sg_public_holidays(holiday_data)
     
-    # Display results (for demonstration)
-    print("\nURA Car Park Availability (First 5):")
-    print(ura_dfs["availability"].head())
-    
-    print("\nURA Car Park List and Rates (First 5):")
-    print(ura_dfs["car_park_list"].head())
-    
-    print("\nURA Season Car Park List and Rates (First 5):")
-    print(ura_dfs["season_car_park_list"].head())
-    
-    print("\nRainfall Data:")
-    print(weather_df.head())
-    
-    print("\nEvents Data:")
-    print(events_df.head())
-    
-    print("\nTraffic Incidents:")
-    print(traffic_df.head())
-    
-    print("\nPublic Holidays:")
-    print(holiday_df.head())
+    # Return all transformed dataframes
+    return {
+        "ura_carpark_availability": ura_dfs["availability"],
+        "ura_carpark_list": ura_dfs["car_park_list"],
+        "ura_season_carpark_list": ura_dfs["season_car_park_list"],
+        "weather_rainfall": weather_df,
+        "events": events_df,
+        "traffic_incidents": traffic_df,
+        "public_holidays": holiday_df
+    }
 
 if __name__ == "__main__":
-    main()
+    # If run directly, fetch the data and print sample from each DataFrame
+    data_dict = fetch_all_data()
+    
+    # Print a sample of each dataframe
+    for name, df in data_dict.items():
+        print(f"\n=== Sample of {name} ===")
+        print(df.head(3))
+        print(f"Total rows: {len(df)}")
