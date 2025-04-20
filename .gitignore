@@ -1,0 +1,25 @@
+# === Airflow logs, DAG serialization, etc. ===
+logs/
+*.log
+airflow.db
+*.pid
+__pycache__/
+*.pyc
+*.pyo
+
+# === Docker ===
+.env
+*.env
+docker-compose.override.yml
+*.db
+tmp/
+*.sqlite
+*.sock
+
+# === VS Code ===
+.vscode/
+
+# === OS-specific ===
+.DS_Store
+Thumbs.db
+
