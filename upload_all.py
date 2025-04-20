@@ -1,55 +1,15 @@
-from google.oauth2 import service_account
-from google.cloud import bigquery
-import pandas as pd
+# setup_bigquery.py
+
 import time
-from scrape_data import fetch_all_data
-
-# ===== BIGQUERY FUNCTIONS =====
-
-def setup_bigquery_client(key_path):
-    """Setup and return BigQuery client"""
-    credentials = service_account.Credentials.from_service_account_file(key_path)
-    client = bigquery.Client(credentials=credentials, project=credentials.project_id)
-    return client, credentials.project_id
-
-def create_dataset_if_not_exists(client, project_id, dataset_id, location="asia-southeast1"):
-    """Create a dataset if it doesn't exist"""
-    full_dataset_id = f"{project_id}.{dataset_id}"
-    dataset = bigquery.Dataset(full_dataset_id)
-    dataset.location = location
-    client.create_dataset(dataset, exists_ok=True)
-    print(f"Dataset '{dataset_id}' is ready.")
-    return full_dataset_id
-
-def upload_dataframe_to_bigquery(client, df, project_id, dataset_id, table_id, write_disposition="WRITE_APPEND"):
-    """Upload a DataFrame to BigQuery"""
-    table_ref = f"{project_id}.{dataset_id}.{table_id}"
-    
-    job_config = bigquery.LoadJobConfig(
-        write_disposition=write_disposition
-    )
-    
-    job = client.load_table_from_dataframe(df, table_ref, job_config=job_config)
-    job.result()  # Wait for the job to complete
-    
-    print(f"Uploaded {job.output_rows} rows to {table_ref}")
-    return table_ref
-
-def verify_upload(client, project_id, dataset_id, table_id, limit=5):
-    """Verify the upload by querying the table"""
-    query = f"""
-    SELECT *
-    FROM `{project_id}.{dataset_id}.{table_id}`
-    LIMIT {limit}
-    """
-    
-    query_job = client.query(query)
-    results = query_job.result().to_dataframe()
-    
-    print(f"\nVerifying upload to {table_id} (sample of {limit} rows):")
-    print(results)
-    
-    return results
+import pandas as pd
+from scrape_all_data import fetch_all_data
+# Import functions from bigquery_utils
+from bigquery_utils import (
+    setup_bigquery_client,
+    create_dataset_if_not_exists,
+    upload_dataframe_to_bigquery,
+    verify_upload
+)
 
 def upload_all_data_to_bigquery(dataframes_dict, key_path, dataset_id="singapore_data"):
     """Upload all dataframes to BigQuery"""
