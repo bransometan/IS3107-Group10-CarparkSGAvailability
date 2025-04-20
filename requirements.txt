@@ -1,0 +1,8 @@
+folium==0.19.5
+matplotlib==3.10.1
+pandas==2.2.3
+protobuf==4.25.3
+pyproj==3.7.1
+pytz==2024.1
+Requests==2.32.3
+seaborn==0.13.2
