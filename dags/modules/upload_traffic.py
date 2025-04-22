@@ -40,7 +40,7 @@ def fetch_and_upload_traffic_data(key_path, dataset_id="singapore_datasets"):
 
 if __name__ == "__main__":
     # Path to your service account key file
-    key_path = "./key/is3107-457309-0e9066063708.json"
+    key_path = "../../key/is3107-457309-0e9066063708.json"
     
     # Dataset name in BigQuery
     dataset_id = "singapore_datasets"

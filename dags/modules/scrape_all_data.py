@@ -121,6 +121,15 @@ def transform_ura_data(ura_data):
     df_availability = pd.DataFrame(ura_data["availability"]["Result"])
     df_carparklist = pd.DataFrame(ura_data["car_park_list"]["Result"])
     df_seasonlist = pd.DataFrame(ura_data["season_car_park_list"]["Result"])
+
+    # Filter availability to only lotType = "C" (Car)
+    df_availability = df_availability[df_availability["lotType"] == "C"]
+    
+    # Filter car_park_list to only vehCat = "Car"
+    df_carparklist = df_carparklist[df_carparklist["vehCat"] == "Car"]
+    
+    # Filter season_car_park_list to only vehCat = "Car"
+    df_seasonlist = df_seasonlist[df_seasonlist["vehCat"] == "Car"]
     
     # Convert geometries to lat/long
     df_availability[["latitude", "longitude"]] = df_availability["geometries"].apply(convert_geom_to_latlong)
@@ -155,6 +164,11 @@ def transform_ura_data(ura_data):
     
     df_seasonlist["monthlyRate"] = pd.to_numeric(df_seasonlist["monthlyRate"], errors="coerce").fillna(0).astype(int)
     
+    # Reset index after filtering
+    df_availability.reset_index(drop=True, inplace=True)
+    df_carparklist.reset_index(drop=True, inplace=True)
+    df_seasonlist.reset_index(drop=True, inplace=True)
+
     return {
         "availability": df_availability,
         "car_park_list": df_carparklist,

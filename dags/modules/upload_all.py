@@ -72,7 +72,7 @@ def run_scheduled_upload(key_path, dataset_id="singapore_data", interval_hours=1
 def main():
     """Main execution function for BigQuery upload"""
     # Path to your service account key file
-    key_path = "./key/is3107-457309-0e9066063708.json"
+    key_path = "../../key/is3107-457309-0e9066063708.json"
     
     # Dataset name in BigQuery
     dataset_id = "singapore_datasets"
