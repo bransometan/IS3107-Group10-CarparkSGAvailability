@@ -48,3 +48,12 @@ def verify_upload(client, project_id, dataset_id, table_id, limit=5):
     print(results)
     
     return results
+
+def run_query(client, query):
+    """Run a BigQuery query and return results as a dataframe"""
+    try:
+        return client.query(query).to_dataframe()
+    except Exception as e:
+        print(f"Error running query: {str(e)}")
+        return pd.DataFrame()
+    
