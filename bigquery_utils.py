@@ -24,7 +24,13 @@ def upload_dataframe_to_bigquery(client, df, project_id, dataset_id, table_id, w
     table_ref = f"{project_id}.{dataset_id}.{table_id}"
     
     job_config = bigquery.LoadJobConfig(
-        write_disposition=write_disposition
+        write_disposition=write_disposition,
+         # This is the key setting that allows schema updates:
+        schema_update_options=[
+            bigquery.SchemaUpdateOption.ALLOW_FIELD_ADDITION
+        ],
+        # Auto-detect the schema from the DataFrame
+        autodetect=True
     )
     
     job = client.load_table_from_dataframe(df, table_ref, job_config=job_config)

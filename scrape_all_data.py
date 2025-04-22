@@ -100,6 +100,19 @@ def extract_sg_public_holidays(dataset_ids):
 
 # ===== TRANSFORMATION FUNCTIONS =====
 
+def assign_region(lat, lon):
+    """
+    Assign a region (North, South, East, West) based on latitude and longitude.
+    """
+    if lat > 1.356 and lon > 103.825:  # North
+        return "North"
+    elif lat < 1.27 and lon > 103.825:  # South
+        return "South"
+    elif lon > 103.9:  # East
+        return "East"
+    else:  # West
+        return "West"
+
 def transform_ura_data(ura_data):
     """Transform URA carpark data into structured dataframes"""
     # Create transformer: from SVY21 (EPSG:3414) to WGS84 (EPSG:4326)
@@ -154,6 +167,14 @@ def transform_ura_data(ura_data):
     df_carparklist["parkCapacity"] = pd.to_numeric(df_carparklist["parkCapacity"], errors="coerce").fillna(0).astype(int)
     
     df_seasonlist["monthlyRate"] = pd.to_numeric(df_seasonlist["monthlyRate"], errors="coerce").fillna(0).astype(int)
+
+    # Add region column
+    df_availability['region'] = df_availability.apply(
+        lambda row: assign_region(row['latitude'], row['longitude']), axis=1
+    )
+    df_carparklist['region'] = df_carparklist.apply(
+        lambda row: assign_region(row['latitude'], row['longitude']), axis=1
+    )
     
     return {
         "availability": df_availability,

@@ -55,6 +55,21 @@ def get_top_carparks_by_availability(client, project_id, limit=10):
     
     return run_query(client, query)
 
+def get_carpark_availability_region(client, project_id):
+    query = f"""
+    SELECT 
+        carparkNo, 
+        lotsAvailable, 
+        CAST(datetime as DATETIME) as datetime,
+        latitude,
+        longitude
+    FROM 
+        `{project_id}.{DATASET_ID}.ura_carpark_availability`
+    ORDER BY 
+        datetime ASC
+    """
+    return run_query(client, query) 
+
 def get_carpark_utilization(client, project_id, limit=10):
     """Query BigQuery for car park utilization rates"""
     query = f"""
@@ -241,6 +256,51 @@ def plot_carpark_utilization(df, title="Top Car Parks by Utilization Rate", save
     
     return plt
 
+# Bubble Chart of Car Park Rates vs. Parking Capacity
+def plot_carpark_rates_vs_capacity(df_carparklist):
+    df_carparklist['weekdayRate'] = df_carparklist['weekdayRate'].replace({'\$': '', ',': ''}, regex=True)
+
+    df_carparklist['weekdayRate'] = pd.to_numeric(df_carparklist['weekdayRate'], errors='coerce')
+
+    plt.figure(figsize=(12, 6))
+    sns.scatterplot(data=df_carparklist, x='weekdayRate', y='parkCapacity', size='parkCapacity', sizes=(20, 200), hue='vehCat', palette='Set2')
+    plt.title('Car Park Rates vs. Parking Capacity')
+    plt.xlabel('Weekday Parking Rate ($)')
+    plt.ylabel('Parking Capacity')
+    plt.tight_layout()
+    plt.show()
+
+def plot_carparks_by_region_pie(df, save_path=None):
+    """
+    Create a pie chart showing the distribution of car parks by region.
+    """
+    # Count car parks by region
+    region_counts = df['region'].value_counts()
+    
+    # Plot the pie chart
+    plt.figure(figsize=(8, 8))
+    plt.pie(
+        region_counts,
+        labels=region_counts.index,
+        autopct='%1.1f%%',  # Show percentages
+        startangle=90,      # Rotate the chart to start at 90 degrees
+        colors=['lightblue', 'lightgreen', 'lightcoral', 'gold'],  # Colors for regions
+        wedgeprops={'edgecolor': 'white'}  # Add white edges for better visibility
+    )
+    
+    # Add title
+    plt.title("Distribution of Car Parks by Region", fontsize=16, pad=20)
+    
+    # Adjust layout
+    plt.tight_layout()
+    
+    # Save or show the figure
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f"Pie chart saved to {save_path}")
+    else:
+        plt.show()
+
 def plot_rainfall_distribution(df, title="Rainfall Distribution", save_path=None):
     """Create a bar chart of rainfall distribution"""
     plt.figure(figsize=(14, 8))
@@ -400,6 +460,49 @@ def create_carpark_map(df, output_path=None):
     
     return m
 
+def plot_regional_availability_trends(df):
+    """Plot aggregated availability trends by region."""
+    df = df.groupby(['datetime', 'region'])['lotsAvailable'].mean().reset_index()
+    plt.figure(figsize=(12, 6))
+    sns.lineplot(data=df, x='datetime', y='lotsAvailable', hue='region', palette='Set2')
+    plt.title("Regional Car Park Availability Trends Over Time", fontsize=16)
+    plt.xlabel("Time", fontsize=14)
+    plt.ylabel("Average Available Lots", fontsize=14)
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+def plot_availability_by_region(df):
+    """Plot availability trends for each region in separate subplots."""
+    regions = df['region'].unique()
+    fig, axes = plt.subplots(len(regions), 1, figsize=(12, 6 * len(regions)), sharex=True)
+    for i, region in enumerate(regions):
+        region_df = df[df['region'] == region]
+        region_df = region_df.groupby('datetime')['lotsAvailable'].mean().reset_index()
+        sns.lineplot(data=region_df, x='datetime', y='lotsAvailable', ax=axes[i], color='blue')
+        axes[i].set_title(f"Car Park Availability Trends in {region}", fontsize=14)
+        axes[i].set_ylabel("Average Available Lots", fontsize=12)
+        axes[i].tick_params(axis='x', rotation=45)
+    plt.xlabel("Time", fontsize=14)
+    plt.tight_layout()
+    plt.show()
+
+def assign_region(lat, lon):
+    """
+    Assign a region (North, South, East, West, Central) based on latitude and longitude.
+    """
+    # Define Central region boundaries
+    if 1.28 <= lat <= 1.32 and 103.83 <= lon <= 103.86:  # Central
+        return "Central"
+    elif lat > 1.356 and lon > 103.825:  # North
+        return "North"
+    elif lat < 1.27 and lon > 103.825:  # South
+        return "South"
+    elif lon > 103.9:  # East
+        return "East"
+    else:  # West
+        return "West"
+
 def main():
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     print(f"=== Starting visualization process at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ===")
@@ -434,8 +537,33 @@ def main():
             save_path=f"{OUTPUT_DIR}/carpark_utilization_{timestamp}.png" if SAVE_CHARTS else None
         )
     else:
-        print("No car park utilization data found")
+        print("No car park utilization data found")    
     
+
+     # Process car park data
+    print("\n=== Processing Car Park Data ===")
+    availability_df = get_carpark_availability_region(client, project_id)
+    print(availability_df.head())
+
+    # Add region column
+    availability_df['region'] = availability_df.apply(
+        lambda row: assign_region(row['latitude'], row['longitude']), axis=1
+        )
+    
+    print(availability_df.head())
+    print('Test 1: ', availability_df['datetime'].head())
+    print('Test 2: ', availability_df.groupby('datetime').size())
+
+    
+    if not availability_df.empty:
+        print("Plotting regional car park availability trends...")
+        plot_regional_availability_trends(availability_df)
+        print("Plotting pie chart of region's car parks...")
+        plot_carparks_by_region_pie(availability_df, save_path=f"{OUTPUT_DIR}/carpark_availability_by_region_{timestamp}.png" if SAVE_CHARTS else None)
+        
+    else:
+        print("No car park availability data found")
+        
     # Process rainfall data
     print("\n=== Processing Rainfall Data ===")
     rainfall_df = get_rainfall_data(client, project_id)
