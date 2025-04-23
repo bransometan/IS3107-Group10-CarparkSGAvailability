@@ -8,7 +8,7 @@ from datetime import datetime
 import os
 
 # Configuration
-KEY_PATH = './key/is3107-457309-0e9066063708.json'
+KEY_PATH = '/keys/is3107-457309-0e9066063708.json'
 DATASET_ID = 'singapore_datasets'
 SAVE_CHARTS = True
 OUTPUT_DIR = 'reports'
@@ -157,6 +157,9 @@ def get_events_data(client, project_id, limit=20):
 
 def plot_top_carparks(df, title="Top Car Parks by Available Lots", save_path=None):
     """Create a bar chart of top car parks by availability"""
+    if save_path is None:
+        save_path="reports/top_carparks_avail.png"
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
     plt.figure(figsize=(12, 8))
     
     # Set style
@@ -197,9 +200,13 @@ def plot_top_carparks(df, title="Top Car Parks by Available Lots", save_path=Non
         print(f"Chart saved to {save_path}")
     
     return plt
+    #return {"save_path":save_path} 
 
 def plot_carpark_utilization(df, title="Top Car Parks by Utilization Rate", save_path=None):
     """Create a bar chart of car parks by utilization rate"""
+    if save_path is None:
+        save_path="reports/top_carparks_util.png"
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
     plt.figure(figsize=(12, 8))
     
     # Set style
@@ -243,6 +250,9 @@ def plot_carpark_utilization(df, title="Top Car Parks by Utilization Rate", save
 
 def plot_rainfall_distribution(df, title="Rainfall Distribution", save_path=None):
     """Create a bar chart of rainfall distribution"""
+    if save_path is None:
+        save_path="reports/rainfall_dist.png"
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
     plt.figure(figsize=(14, 8))
     
     # Set style
@@ -290,6 +300,9 @@ def plot_rainfall_distribution(df, title="Rainfall Distribution", save_path=None
 
 def plot_traffic_incidents_by_type(df, title="Traffic Incidents by Type", save_path=None):
     """Create a pie chart of traffic incidents by type"""
+    if save_path is None:
+        save_path="reports/traffic_inci.png"
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
     plt.figure(figsize=(10, 10))
     
     # Count incidents by type
@@ -316,10 +329,14 @@ def plot_traffic_incidents_by_type(df, title="Traffic Incidents by Type", save_p
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"Chart saved to {save_path}")
     
+    #return plt
     return plt
 
 def plot_events_by_type(df, title="Events by Type", save_path=None):
     """Create a bar chart of events by type"""
+    if save_path is None:
+        save_path="reports/events_type.png"
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
     plt.figure(figsize=(12, 8))
     
     # Count events by type
@@ -370,6 +387,7 @@ def plot_events_by_type(df, title="Events by Type", save_path=None):
 def create_carpark_map(df, output_path=None):
     """Create an HTML map with car parks"""
     # Create a map centered on Singapore
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     m = folium.Map(location=[1.3521, 103.8198], zoom_start=12, tiles="cartodbpositron")
     
     # Add car parks as circle markers
@@ -478,7 +496,7 @@ def main():
     print(f"\n=== Visualization process completed at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ===")
     
     # Display all figures (if not in a non-interactive environment)
-    plt.show()
+    return {"parent_dir":"/opt/airflow/reports"}
 
 if __name__ == "__main__":
     main()

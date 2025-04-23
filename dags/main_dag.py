@@ -11,8 +11,12 @@ from tqdm import tqdm
 from google.oauth2 import service_account
 from google.cloud import bigquery
 from modules.scrape_all_data import extract_ura_data,extract_events_data,extract_traffic_incidents,extract_sg_public_holidays,extract_weather_data
-from modules.scrape_all_data import transform_ura_data,transform_events_data, transform_traffic_incidents, transform_sg_public_holidays
+from modules.scrape_all_data import transform_ura_data,transform_events_data, transform_traffic_incidents, transform_sg_public_holidays, transform_weather_data
 from modules.bigquery_utils import setup_bigquery_client, create_dataset_if_not_exists, upload_dataframe_to_bigquery,verify_upload
+from modules.upload_all import upload_all_data_to_bigquery
+from modules.dashboard_app import plot_carpark_utilization, plot_events_by_type,plot_rainfall_distribution,plot_top_carparks,plot_traffic_incidents_by_type
+from modules.dashboard_app import get_top_carparks_by_availability, get_carpark_utilization, get_events_data, get_rainfall_data, get_traffic_incidents, run_query, main
+import os
 
 default_args = {
     "owner": "airflow",
@@ -20,23 +24,19 @@ default_args = {
     "email": ["airflow@example.com"],
     "email_on_failure": False,
     "email_on_retry": False,
-    "retries": 3,
+    "retries": 0,
     "retry_delay": timedelta(minutes=10)
 }
 
+SAVE_CHARTS = True
+OUTPUT_DIR = 'reports'
+
+# Create output directory if it doesn't exist
+if SAVE_CHARTS and not os.path.exists(OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR)
 
 @dag(dag_id='carpark_etl_taskflow', default_args=default_args, schedule="@daily", catchup=False, tags=['project'])
 def carpark_taskflow_api_etl():
-    @task
-    def get_project_id(key_path: str):
-        #client, project_id = setup_bigquery_client(key_path)
-        #info_dict= {
-        #    "client": client,
-        #    "project_id": project_id
-        #}
-        #return info_dict
-        _, project_id = setup_bigquery_client(key_path)
-        return project_id
     
     @task
     def extract_all_data():
@@ -65,49 +65,40 @@ def carpark_taskflow_api_etl():
         df_events=transform_events_data(events_data)
         df_traffic = transform_traffic_incidents(traffic_data)
         df_holiday = transform_sg_public_holidays(hol_data)
+        df_weather=transform_weather_data(weather_data)
 
 
         #df_holiday.to_csv("holiday.csv",index=False)
 
         all_data = {
-            "ura_availability" : df_ura_avail,
+            "ura_carpark_availability" : df_ura_avail,
             "ura_carpark_list": df_ura_carpark_list,
-            "ura_season_carpark": df_ura_season_carpark,
+            "ura_season_carpark_list": df_ura_season_carpark,
             "events": df_events,
-            "traffic": df_traffic,
-            "public_holiday": df_holiday
+            "traffic_incidents": df_traffic,
+            "public_holidays": df_holiday,
+            "weather_rainfall": df_weather
+
         }
         return all_data
     
 
     @task
-    def bigquery_upload(all_data: dict, project_id: str, key_path: str):
-        client, _ = setup_bigquery_client(key_path)
-        #project_id=info_dict['project_id'] #client: str, project_id: str
-        #dataset_id = "is3107-457309.singapore_datasets"
+    def bigquery_upload(all_data: dict, key_path: str):
         dataset_id= "singapore_datasets"
-        table_ids = {
-            "ura_availability": "ura_carpark_availability",
-            "ura_carpark_list": "ura_carpark_list",
-            "ura_season_carpark": "ura_season_carpark_list",
-            "events": "events",
-            "traffic": "traffic_incidents",
-            "public_holiday": "public_holidays"
-        }
+        upload_results=upload_all_data_to_bigquery(all_data,key_path)
+        return upload_results
 
-        key_list=["ura_availability", "ura_carpark_list","ura_season_carpark","events","traffic","public_holiday"]
 
-        for i in range(len(key_list)):
-            upload_dataframe_to_bigquery(client,all_data[key_list[i]],project_id,dataset_id,table_ids[key_list[i]])
-            verify_upload(client,project_id,dataset_id,table_ids[key_list[i]])
-        return "done"
-
+    @task 
+    def visualisations():
+        test= main()
+        return test
     
     key_path = "/keys/is3107-457309-0e9066063708.json"
-    #info_dict= init_bigquery_client(key_path)
-    project_id=get_project_id(key_path)
     all_data=extract_all_data()
-    bigquery_upload(all_data,project_id,key_path)
+    bigquery_upload(all_data,key_path)
+    visualisations()
 
 
 

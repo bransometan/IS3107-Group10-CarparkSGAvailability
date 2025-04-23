@@ -2,9 +2,9 @@
 
 import time
 import pandas as pd
-from scrape_all_data import fetch_all_data
+from modules.scrape_all_data import fetch_all_data
 # Import functions from bigquery_utils
-from bigquery_utils import (
+from modules.bigquery_utils import (
     setup_bigquery_client,
     create_dataset_if_not_exists,
     upload_dataframe_to_bigquery,
