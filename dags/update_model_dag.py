@@ -194,10 +194,9 @@ def model_update_dag():
     @task
     def preprocess_new_data(data_dict: dict):
         """Preprocesses the fetched weekly data using the feature engineering logic."""
-        # Basic check if availability data exists
         if data_dict.get('availability', pd.DataFrame()).empty:
             logging.warning("Availability data is empty. Skipping preprocessing.")
-            # Return empty dataframes with correct columns to signal no update needed
+            # return empty dataframes with correct columns to signal no update needed
             feature_cols = [
                 "hour_of_day", "day_of_week", "is_weekend", "is_holiday",
                 "rainfall", "is_traffic", "has_nearby_event",
@@ -210,7 +209,7 @@ def model_update_dag():
 
         if feature_matrix.empty:
              logging.warning("Feature matrix is empty after processing. No data to update model with.")
-             # Return empty dataframes with correct columns
+             # return  empty dataframes with correct columns
              feature_cols = [
                 "hour_of_day", "day_of_week", "is_weekend", "is_holiday",
                 "rainfall", "is_traffic", "has_nearby_event",
@@ -218,13 +217,11 @@ def model_update_dag():
              ]
              return {"X_new": pd.DataFrame(columns=feature_cols), "y_new": pd.Series(dtype=float)}
 
-        # Separate features (X) and target (y)
         X_new = feature_matrix.drop(columns="utilisation_rate")
         y_new = feature_matrix["utilisation_rate"]
 
         logging.info(f"Preprocessing complete. Created {len(X_new)} new feature vectors.")
         return {"X_new": X_new, "y_new": y_new}
-
 
     @task
     def update_model_partial_fit(processed_data: dict):
@@ -246,14 +243,12 @@ def model_update_dag():
             if not isinstance(pipeline, Pipeline):
                  raise TypeError(f"Loaded object is not a scikit-learn Pipeline: {type(pipeline)}")
 
-            # Perform partial fit
-            # The pipeline handles scaling the new data before fitting the regressor
+            # Perform partial fit on new data
             logging.info(f"Performing partial_fit with {len(X_new)} samples...")
             pipeline.steps[-1][1].partial_fit(X_new, y_new)
             logging.info("Partial fit completed.")
 
-            # Save the updated pipeline back to the same local path
-            # Ensure the directory exists before saving
+            # Save
             os.makedirs(os.path.dirname(LOCAL_MODEL_PATH), exist_ok=True)
             logging.info(f"Saving updated model pipeline back to {LOCAL_MODEL_PATH}")
             joblib.dump(pipeline, LOCAL_MODEL_PATH)
@@ -262,10 +257,10 @@ def model_update_dag():
 
         except FileNotFoundError:
              logging.error(f"Model file {LOCAL_MODEL_PATH} not found during update task. This shouldn't happen if check_data_and_model_file passed.")
-             raise # Re-raise the error to fail the task
+             raise # fail the task
         except Exception as e:
             logging.error(f"Error during model update/saving: {e}", exc_info=True)
-            raise # Re-raise the error
+            raise 
 
     # dependencies
     time_range_dict = get_update_time_range()
