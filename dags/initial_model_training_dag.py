@@ -60,7 +60,7 @@ def initial_training_dag():
         Queries BigQuery for data within the specified time range (start of yr
         to 1 wk ago).
         """
-        client, _ = setup_bigquery_client()
+        client, _ = setup_bigquery_client(KEY_PATH)
         start_date_pend = pendulum.parse("2025-01-01T00:00:00+08:00")
         end_date_pend = pendulum.now("Asia/Singapore").subtract(weeks=1)
         buffer_start_pend = start_date_pend.subtract(hours=8)
@@ -121,7 +121,7 @@ def initial_training_dag():
             SELECT
                 latitude,
                 longitude,
-                datetime
+                incident_time
             FROM `{PROJECT_ID}.{DATASET_ID}.{TABLES['traffic']}`
             WHERE incident_time >= TIMESTAMP("{buffer_start}") AND incident_time < TIMESTAMP("{buffer_end}")
         """
@@ -139,7 +139,8 @@ def initial_training_dag():
                 endTime,
                 latitude,
                 longitude,
-                region
+                region,
+                parkCapacity
             FROM `{PROJECT_ID}.{DATASET_ID}.{TABLES['list']}`
             WHERE vehCat = "Car"
         """
@@ -157,7 +158,7 @@ def initial_training_dag():
         return fetched_data
 
     @task
-    def preprocess_initial_data(data_dict: dict):
+    def preprocess_and_train(data_dict: dict):
         """Preprocesses the initial data using the same logic."""
 
         logging.info("Preprocessing new data...")
@@ -170,19 +171,12 @@ def initial_training_dag():
         y_train = feature_matrix["utilisation_rate"]
 
         logging.info(f"Preprocessing complete. Created {len(X_train)} new feature vectors.")
-        return {"X_train": X_train, "y_train": y_train}
-
-    @task
-    def train_and_save_initial_model(processed_data: dict):
-        X_train = processed_data["X_train"]
-        y_train = processed_data["y_train"]
         initial_train_and_save(X_train, y_train, LOCAL_MODEL_PATH) # Pass the path
 
 
     # Define dependencies
     raw_data = query_all_historical_data()
-    processed_training_data = preprocess_initial_data(raw_data)
-    train_and_save_initial_model(processed_training_data)
+    preprocess_and_train(raw_data)
 
 # Instantiate the DAG
 initial_training_dag_instance = initial_training_dag()
