@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_e1de4e7ae4cdb6bec3cf0afbdad1199a {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_e1de4e7ae4cdb6bec3cf0afbdad1199a" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_e1de4e7ae4cdb6bec3cf0afbdad1199a = L.map(
+                "map_e1de4e7ae4cdb6bec3cf0afbdad1199a",
+                {
+                    center: [1.3521, 103.8198],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 12,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_c2db0922f0544cdaddcd6a29989620ac = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_c2db0922f0544cdaddcd6a29989620ac.addTo(map_e1de4e7ae4cdb6bec3cf0afbdad1199a);
+        
+    
+            var circle_marker_7bd8333b1f09fd193212373dfb16bf00 = L.circleMarker(
+                [1.3068935207044758, 103.92999292150182],
+                {"bubblingMouseEvents": true, "color": "green", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 8, "stroke": true, "weight": 3}
+            ).addTo(map_e1de4e7ae4cdb6bec3cf0afbdad1199a);
+        
+    
+        var popup_7d82384c37c03862a1d6695d77ab3b10 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_e36fc548efbbb44d13467bccba5f3f78 = $(`<div id="html_e36fc548efbbb44d13467bccba5f3f78" style="width: 100.0%; height: 100.0%;">             <b>EAST COAST PARK E1 OFF STREET</b><br>             Available Lots: 483             </div>`)[0];
+                popup_7d82384c37c03862a1d6695d77ab3b10.setContent(html_e36fc548efbbb44d13467bccba5f3f78);
+            
+        
+
+        circle_marker_7bd8333b1f09fd193212373dfb16bf00.bindPopup(popup_7d82384c37c03862a1d6695d77ab3b10)
+        ;
+
+        
+    
+    
+            circle_marker_7bd8333b1f09fd193212373dfb16bf00.bindTooltip(
+                `<div>
+                     EAST COAST PARK E1 OFF STREET
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_a5d799a9d4a46afa8cc6d04f6d0947d6 = L.circleMarker(
+                [1.268039517324791, 103.81759598210787],
+                {"bubblingMouseEvents": true, "color": "green", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 8, "stroke": true, "weight": 3}
+            ).addTo(map_e1de4e7ae4cdb6bec3cf0afbdad1199a);
+        
+    
+        var popup_9e13a71afe4daa19013af865e9987fcc = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_790f9edf4182fb58020e3e92c3f7ca21 = $(`<div id="html_790f9edf4182fb58020e3e92c3f7ca21" style="width: 100.0%; height: 100.0%;">             <b>SEAH IM ROAD OFF STREET</b><br>             Available Lots: 318             </div>`)[0];
+                popup_9e13a71afe4daa19013af865e9987fcc.setContent(html_790f9edf4182fb58020e3e92c3f7ca21);
+            
+        
+
+        circle_marker_a5d799a9d4a46afa8cc6d04f6d0947d6.bindPopup(popup_9e13a71afe4daa19013af865e9987fcc)
+        ;
+
+        
+    
+    
+            circle_marker_a5d799a9d4a46afa8cc6d04f6d0947d6.bindTooltip(
+                `<div>
+                     SEAH IM ROAD OFF STREET
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_f90168c0eebb46d138a307640b09c20b = L.circleMarker(
+                [1.2665572188626226, 103.82037098540346],
+                {"bubblingMouseEvents": true, "color": "green", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 8, "stroke": true, "weight": 3}
+            ).addTo(map_e1de4e7ae4cdb6bec3cf0afbdad1199a);
+        
+    
+        var popup_3b9557132818d04c1d6a9e8647e7f155 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_8324b103f5c99ca654c99c2c7e56d5a9 = $(`<div id="html_8324b103f5c99ca654c99c2c7e56d5a9" style="width: 100.0%; height: 100.0%;">             <b>MARITIME SQUARE D OFF STREET</b><br>             Available Lots: 242             </div>`)[0];
+                popup_3b9557132818d04c1d6a9e8647e7f155.setContent(html_8324b103f5c99ca654c99c2c7e56d5a9);
+            
+        
+
+        circle_marker_f90168c0eebb46d138a307640b09c20b.bindPopup(popup_3b9557132818d04c1d6a9e8647e7f155)
+        ;
+
+        
+    
+    
+            circle_marker_f90168c0eebb46d138a307640b09c20b.bindTooltip(
+                `<div>
+                     MARITIME SQUARE D OFF STREET
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_bc0d41b9c1aa35d13e05e9ad9b502ff2 = L.circleMarker(
+                [1.3110998019426634, 103.83975443333432],
+                {"bubblingMouseEvents": true, "color": "green", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 8, "stroke": true, "weight": 3}
+            ).addTo(map_e1de4e7ae4cdb6bec3cf0afbdad1199a);
+        
+    
+        var popup_83f61004722787c747de68c51d253204 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_facd43f4e5b307dbbaf4174efe6f3d31 = $(`<div id="html_facd43f4e5b307dbbaf4174efe6f3d31" style="width: 100.0%; height: 100.0%;">             <b>CLEMENCEAU AVENUE NORTH (NEWTON FC)</b><br>             Available Lots: 198             </div>`)[0];
+                popup_83f61004722787c747de68c51d253204.setContent(html_facd43f4e5b307dbbaf4174efe6f3d31);
+            
+        
+
+        circle_marker_bc0d41b9c1aa35d13e05e9ad9b502ff2.bindPopup(popup_83f61004722787c747de68c51d253204)
+        ;
+
+        
+    
+    
+            circle_marker_bc0d41b9c1aa35d13e05e9ad9b502ff2.bindTooltip(
+                `<div>
+                     CLEMENCEAU AVENUE NORTH (NEWTON FC)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_1d6d3c818c592106293ce93a67e3bdf8 = L.circleMarker(
+                [1.3073484560097448, 103.93582213821036],
+                {"bubblingMouseEvents": true, "color": "green", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 8, "stroke": true, "weight": 3}
+            ).addTo(map_e1de4e7ae4cdb6bec3cf0afbdad1199a);
+        
+    
+        var popup_49f390312d73565f1d1231ea19e5c79c = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_9e757721124a959f31078c68295f7de6 = $(`<div id="html_9e757721124a959f31078c68295f7de6" style="width: 100.0%; height: 100.0%;">             <b>EAST COAST PARK E2 OFF STREET</b><br>             Available Lots: 192             </div>`)[0];
+                popup_49f390312d73565f1d1231ea19e5c79c.setContent(html_9e757721124a959f31078c68295f7de6);
+            
+        
+
+        circle_marker_1d6d3c818c592106293ce93a67e3bdf8.bindPopup(popup_49f390312d73565f1d1231ea19e5c79c)
+        ;
+
+        
+    
+    
+            circle_marker_1d6d3c818c592106293ce93a67e3bdf8.bindTooltip(
+                `<div>
+                     EAST COAST PARK E2 OFF STREET
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_c599f44baecf42553fcaaf92042b32eb = L.circleMarker(
+                [1.3053280313222797, 103.82957069514453],
+                {"bubblingMouseEvents": true, "color": "green", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 8, "stroke": true, "weight": 3}
+            ).addTo(map_e1de4e7ae4cdb6bec3cf0afbdad1199a);
+        
+    
+        var popup_26be7a4d52220df17a8f83a825eec22c = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_72c095311f464833b2280754291e3363 = $(`<div id="html_72c095311f464833b2280754291e3363" style="width: 100.0%; height: 100.0%;">             <b>ANGULLIA PARK OFF STREET</b><br>             Available Lots: 192             </div>`)[0];
+                popup_26be7a4d52220df17a8f83a825eec22c.setContent(html_72c095311f464833b2280754291e3363);
+            
+        
+
+        circle_marker_c599f44baecf42553fcaaf92042b32eb.bindPopup(popup_26be7a4d52220df17a8f83a825eec22c)
+        ;
+
+        
+    
+    
+            circle_marker_c599f44baecf42553fcaaf92042b32eb.bindTooltip(
+                `<div>
+                     ANGULLIA PARK OFF STREET
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_ddb72a4ac63bedbf1a70074d649c9cf4 = L.circleMarker(
+                [1.3128601116288021, 103.90081283677691],
+                {"bubblingMouseEvents": true, "color": "green", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 8, "stroke": true, "weight": 3}
+            ).addTo(map_e1de4e7ae4cdb6bec3cf0afbdad1199a);
+        
+    
+        var popup_d91389c348ed6485a4c27c7cf8bdfe55 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_4a45788ac7b023baac0042c7f649c670 = $(`<div id="html_4a45788ac7b023baac0042c7f649c670" style="width: 100.0%; height: 100.0%;">             <b>TEMBELING ROAD OFF STREET</b><br>             Available Lots: 180             </div>`)[0];
+                popup_d91389c348ed6485a4c27c7cf8bdfe55.setContent(html_4a45788ac7b023baac0042c7f649c670);
+            
+        
+
+        circle_marker_ddb72a4ac63bedbf1a70074d649c9cf4.bindPopup(popup_d91389c348ed6485a4c27c7cf8bdfe55)
+        ;
+
+        
+    
+    
+            circle_marker_ddb72a4ac63bedbf1a70074d649c9cf4.bindTooltip(
+                `<div>
+                     TEMBELING ROAD OFF STREET
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_4e8b8b4697d2ca9b629abfd82b51de4c = L.circleMarker(
+                [1.3988702482283173, 103.87298020876845],
+                {"bubblingMouseEvents": true, "color": "green", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 8, "stroke": true, "weight": 3}
+            ).addTo(map_e1de4e7ae4cdb6bec3cf0afbdad1199a);
+        
+    
+        var popup_340cf33b5fdfdf75a801ce39cd8ecece = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_768ba0627d9a44cf681e7f385755f20f = $(`<div id="html_768ba0627d9a44cf681e7f385755f20f" style="width: 100.0%; height: 100.0%;">             <b>JALAN KAYU OFF STREET </b><br>             Available Lots: 177             </div>`)[0];
+                popup_340cf33b5fdfdf75a801ce39cd8ecece.setContent(html_768ba0627d9a44cf681e7f385755f20f);
+            
+        
+
+        circle_marker_4e8b8b4697d2ca9b629abfd82b51de4c.bindPopup(popup_340cf33b5fdfdf75a801ce39cd8ecece)
+        ;
+
+        
+    
+    
+            circle_marker_4e8b8b4697d2ca9b629abfd82b51de4c.bindTooltip(
+                `<div>
+                     JALAN KAYU OFF STREET 
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_b8d66dd5a67b8886253d7f4e9bf2b1da = L.circleMarker(
+                [1.2893051001294185, 103.82465436208517],
+                {"bubblingMouseEvents": true, "color": "green", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 8, "stroke": true, "weight": 3}
+            ).addTo(map_e1de4e7ae4cdb6bec3cf0afbdad1199a);
+        
+    
+        var popup_a5d4aeb0587b91daf8fe629c418b4d91 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_54ef7c26fb2c2113b72e717b9aac58e6 = $(`<div id="html_54ef7c26fb2c2113b72e717b9aac58e6" style="width: 100.0%; height: 100.0%;">             <b>DELTA CIRCUS FRINGE CAR PARK</b><br>             Available Lots: 138             </div>`)[0];
+                popup_a5d4aeb0587b91daf8fe629c418b4d91.setContent(html_54ef7c26fb2c2113b72e717b9aac58e6);
+            
+        
+
+        circle_marker_b8d66dd5a67b8886253d7f4e9bf2b1da.bindPopup(popup_a5d4aeb0587b91daf8fe629c418b4d91)
+        ;
+
+        
+    
+    
+            circle_marker_b8d66dd5a67b8886253d7f4e9bf2b1da.bindTooltip(
+                `<div>
+                     DELTA CIRCUS FRINGE CAR PARK
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+</script>
+</html>
