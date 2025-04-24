@@ -165,7 +165,8 @@ def model_update_dag():
                 endTime,
                 latitude,
                 longitude,
-                region
+                region,
+                parkCapacity
             FROM `{PROJECT_ID}.{DATASET_ID}.{TABLES['list']}`
             WHERE vehCat = "Car"
         """
