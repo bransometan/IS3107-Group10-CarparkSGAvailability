@@ -14,6 +14,8 @@ google-cloud-bigquery
 pyarrow
 pandas-gbq 
 db-dtypes
+haversine
+tqdm
 scikit-learn
 numpy
 geopy
