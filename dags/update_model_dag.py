@@ -210,12 +210,12 @@ def model_update_dag():
         if feature_matrix.empty:
              logging.warning("Feature matrix is empty after processing. No data to update model with.")
              # return  empty dataframes with correct columns
-             feature_cols = [
-                "hour_of_day", "day_of_week", "is_weekend", "is_holiday",
-                "rainfall", "is_traffic", "has_nearby_event",
-                "total_lots", "parking_rate"
-             ]
-             return {"X_new": pd.DataFrame(columns=feature_cols), "y_new": pd.Series(dtype=float)}
+            #  feature_cols = [
+            #     "hour_of_day", "day_of_week", "is_weekend", "is_holiday",
+            #     "rainfall", "is_traffic", "has_nearby_event",
+            #     "total_lots", "parking_rate"
+            #  ]
+             return "not updated"
 
         X_new = feature_matrix.drop(columns="utilisation_rate")
         y_new = feature_matrix["utilisation_rate"]
