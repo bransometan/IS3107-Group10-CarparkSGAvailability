@@ -147,7 +147,7 @@ def model_update_dag():
             SELECT
                 latitude,
                 longitude,
-                datetime
+                incident_time
             FROM `{PROJECT_ID}.{DATASET_ID}.{TABLES['traffic']}`
             WHERE incident_time >= TIMESTAMP("{buffer_start}") AND incident_time < TIMESTAMP("{buffer_end}")
         """
