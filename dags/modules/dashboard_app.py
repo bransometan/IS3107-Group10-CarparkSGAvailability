@@ -275,10 +275,17 @@ def plot_carpark_utilization(df, title="Top Car Parks by Utilization Rate", save
     return plt
 
 # Bubble Chart of Car Park Rates vs. Parking Capacity
-def plot_carpark_rates_vs_capacity(df_carparklist):
+def plot_carpark_rates_vs_capacity(df_carparklist, save_path=None):
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
     df_carparklist['weekdayRate'] = df_carparklist['weekdayRate'].replace({'\$': '', ',': ''}, regex=True)
 
     df_carparklist['weekdayRate'] = pd.to_numeric(df_carparklist['weekdayRate'], errors='coerce')
+    df_carparklist['weekdayRate'] = df_carparklist['weekdayRate'].astype(float) 
+
+    df_carparklist['parkCapacity'] = pd.to_numeric(df_carparklist['parkCapacity'], errors='coerce')
+    df_carparklist['parkCapacity'] = df_carparklist['parkCapacity'].astype(float)
+
+
 
     plt.figure(figsize=(12, 6))
     sns.scatterplot(data=df_carparklist, x='weekdayRate', y='parkCapacity', size='parkCapacity', sizes=(20, 200), hue='vehCat', palette='Set2')
@@ -286,12 +293,14 @@ def plot_carpark_rates_vs_capacity(df_carparklist):
     plt.xlabel('Weekday Parking Rate ($)')
     plt.ylabel('Parking Capacity')
     plt.tight_layout()
-    plt.show()
+    #plt.show()
+    return plt
 
 def plot_carparks_by_region_pie(df, save_path=None):
     """
     Create a pie chart showing the distribution of car parks by region.
     """
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
     # Count car parks by region
     region_counts = df['region'].value_counts()
     
@@ -316,8 +325,9 @@ def plot_carparks_by_region_pie(df, save_path=None):
     if save_path:
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"Pie chart saved to {save_path}")
-    else:
-        plt.show()
+    #else:
+    #    plt.show()
+    return plt
 
 def plot_rainfall_distribution(df, title="Rainfall Distribution", save_path=None):
     """Create a bar chart of rainfall distribution"""
@@ -489,8 +499,9 @@ def create_carpark_map(df, output_path=None):
     
     return m
 
-def plot_regional_availability_trends(df):
+def plot_regional_availability_trends(df, save_path=None):
     """Plot aggregated availability trends by region."""
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
     df = df.groupby(['datetime', 'region'])['lotsAvailable'].mean().reset_index()
     plt.figure(figsize=(12, 6))
     sns.lineplot(data=df, x='datetime', y='lotsAvailable', hue='region', palette='Set2')
@@ -499,10 +510,17 @@ def plot_regional_availability_trends(df):
     plt.ylabel("Average Available Lots", fontsize=14)
     plt.xticks(rotation=45)
     plt.tight_layout()
-    plt.show()
+    #plt.show()
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f"Chart saved to {save_path}")
+    
+    #return plt
+    return plt
 
-def plot_availability_by_region(df):
+def plot_availability_by_region(df,save_path=None):
     """Plot availability trends for each region in separate subplots."""
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
     regions = df['region'].unique()
     fig, axes = plt.subplots(len(regions), 1, figsize=(12, 6 * len(regions)), sharex=True)
     for i, region in enumerate(regions):
@@ -514,7 +532,8 @@ def plot_availability_by_region(df):
         axes[i].tick_params(axis='x', rotation=45)
     plt.xlabel("Time", fontsize=14)
     plt.tight_layout()
-    plt.show()
+    #plt.show()
+    return plt
 
 def assign_region(lat, lon):
     """
@@ -586,9 +605,9 @@ def main():
     
     if not availability_df.empty:
         print("Plotting regional car park availability trends...")
-        plot_regional_availability_trends(availability_df)
+        plot_regional_availability_trends(availability_df, save_path=f"{OUTPUT_DIR}/regional_availability_trends_{timestamp}.png" if SAVE_CHARTS else None)
         print("Plotting pie chart of region's car parks...")
-        plot_carparks_by_region_pie(availability_df, save_path=f"{OUTPUT_DIR}/carpark_availability_by_region_{timestamp}.png" if SAVE_CHARTS else None)
+        plot_carparks_by_region_pie(availability_df, save_path=f"{OUTPUT_DIR}/carpark_availability_by_region_pie_{timestamp}.png" if SAVE_CHARTS else None)
         
     else:
         print("No car park availability data found")
@@ -598,7 +617,8 @@ def main():
     if not bubble_df.empty:
         print("Creating car park rates vs. capacity bubble chart...")
         plot_carpark_rates_vs_capacity(
-            bubble_df)
+            bubble_df,
+            save_path=f"{OUTPUT_DIR}/carpark_rates_vs_capacity_{timestamp}.png" if SAVE_CHARTS else None)
     else:
         print("No car park list data found")
 

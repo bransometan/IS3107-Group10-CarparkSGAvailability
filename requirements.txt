@@ -12,4 +12,10 @@ google-auth-oauthlib
 google-auth-httplib2
 google-cloud-bigquery
 pyarrow
-pandas-gbq db-dtypes
+pandas-gbq 
+db-dtypes
+scikit-learn
+numpy
+geopy
+pendulum
+joblib

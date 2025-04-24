@@ -20,18 +20,17 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 # import utils
-from dags.modules.ml_utils import  create_feature_matrix
-from dags.modules.bigquery_utils import (
-    setup_bigquery_client, run_query
-)
+from modules.ml_utils import create_feature_matrix
+from modules.bigquery_utils import setup_bigquery_client, run_query
 
-KEY_PATH = "./key/is3107-457309-0e9066063708.json" 
+
+KEY_PATH = "/keys/is3107-457309-0e9066063708.json" 
 PROJECT_ID = "is3107-457309" 
 DATASET_ID = "singapore_datasets"
 LOCAL_MODEL_DIR = "/model" 
-LOCAL_MODEL_FILENAME = "sgd_regressor_pipeline.joblib"
+LOCAL_MODEL_FILENAME = "model/sgd_regressor_pipeline.joblib"
 LOCAL_MODEL_PATH = os.path.join(LOCAL_MODEL_DIR, LOCAL_MODEL_FILENAME)
-TABLES = TABLES = {
+TABLES = {
     "availability": "ura_carpark_availability",
     "list": "ura_carpark_list",
     "weather": "weather_rainfall", 
