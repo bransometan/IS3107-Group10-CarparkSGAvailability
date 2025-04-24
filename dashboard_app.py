@@ -112,6 +112,18 @@ def get_carpark_utilization(client, project_id, limit=10):
     
     return run_query(client, query)
 
+def get_bubble_chart_data(client, project_id):
+    query = f"""
+    SELECT 
+        carparkNo, 
+        weekdayRate, 
+        parkCapacity, 
+        vehCat
+    FROM 
+        `{project_id}.{DATASET_ID}.ura_carpark_list`
+    """
+    return run_query(client, query)
+
 def get_rainfall_data(client, project_id, limit=30):
     """Query BigQuery for rainfall data"""
     query = f"""
@@ -127,7 +139,6 @@ def get_rainfall_data(client, project_id, limit=30):
         datetime DESC
     LIMIT {limit}
     """
-    
     return run_query(client, query)
 
 def get_traffic_incidents(client, project_id, limit=50):
@@ -563,6 +574,17 @@ def main():
         
     else:
         print("No car park availability data found")
+    
+    bubble_df = get_bubble_chart_data(client, project_id)
+
+    if not bubble_df.empty:
+        print("Creating car park rates vs. capacity bubble chart...")
+        plot_carpark_rates_vs_capacity(
+            bubble_df)
+    else:
+        print("No car park list data found")
+
+
         
     # Process rainfall data
     print("\n=== Processing Rainfall Data ===")
@@ -602,7 +624,8 @@ def main():
         )
     else:
         print("No events data found")
-    
+
+    client.close()
     print(f"\n=== Visualization process completed at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ===")
     
     # Display all figures (if not in a non-interactive environment)
