@@ -28,7 +28,7 @@ from dags.modules.bigquery_utils import (
     setup_bigquery_client, run_query
 )
 
-KEY_PATH = "./key/is3107-457309-0e9066063708.json" 
+KEY_PATH = "/keys/is3107-457309-0e9066063708.json" 
 PROJECT_ID = "is3107-457309" 
 DATASET_ID = "singapore_datasets"
 LOCAL_MODEL_DIR = "/model" 
