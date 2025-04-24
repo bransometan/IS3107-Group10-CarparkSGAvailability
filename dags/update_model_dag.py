@@ -192,7 +192,7 @@ def model_update_dag():
         return True # proceed
 
     @task
-    def preprocess_new_data(data_dict: dict):
+    def preprocess_new_data_and_partial_fit(data_dict: dict):
         """Preprocesses the fetched weekly data using the feature engineering logic."""
         if data_dict.get('availability', pd.DataFrame()).empty:
             logging.warning("Availability data is empty. Skipping preprocessing.")
@@ -221,14 +221,8 @@ def model_update_dag():
         y_new = feature_matrix["utilisation_rate"]
 
         logging.info(f"Preprocessing complete. Created {len(X_new)} new feature vectors.")
-        return {"X_new": X_new, "y_new": y_new}
 
-    @task
-    def update_model_partial_fit(processed_data: dict):
-        """Loads the model, performs partial_fit, and saves the updated model."""
-        X_new = processed_data["X_new"]
-        y_new = processed_data["y_new"]
-
+        # partial fit
         if X_new.empty or y_new.empty:
             logging.info("No new data to update the model with. Skipping partial_fit.")
             return "skipped"
@@ -270,8 +264,8 @@ def model_update_dag():
     # Ensure data query runs only if model file exists
     raw_data_dict.set_upstream(can_proceed)
 
-    processed_data_dict = preprocess_new_data(raw_data_dict)
-    update_status = update_model_partial_fit(processed_data_dict)
+    # processed_data_dict = preprocess_new_data(raw_data_dict)
+    update_status = preprocess_new_data_and_partial_fit(raw_data_dict)
 
 
 # Instantiate the DAG
