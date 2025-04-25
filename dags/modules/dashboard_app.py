@@ -10,6 +10,11 @@ from haversine import haversine, Unit
 from tqdm import tqdm
 import numpy as np
 
+from scrape_all_data import fetch_all_data
+from ml_utils import  (
+    create_feature_matrix,
+)
+
 # Configuration
 KEY_PATH = '/keys/is3107-457309-0e9066063708.json'
 # KEY_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'key', 'is3107-457309-0e9066063708.json'))
@@ -218,6 +223,27 @@ def get_carpark_list(client, project_id):
     """
     
     return run_query(client, query)
+
+def get_ml_df():
+    data_dict = fetch_all_data()
+
+    RENAME_MAP = {
+        "ura_carpark_availability": "availability",
+        "ura_carpark_list": "list",
+        "ura_season_carpark_list": "season_list", 
+        "weather_rainfall": "weather",
+        "events": "events",
+        "traffic_incidents": "traffic",
+        "public_holidays": "holidays"
+    }
+
+    renamed_data = rename_keys(data_dict, RENAME_MAP)
+
+    feature_matrix = create_feature_matrix(renamed_data)
+    return feature_matrix
+
+def rename_keys(data: dict, rename_map: dict) -> dict:
+    return {rename_map.get(k, k): v for k, v in data.items()}
 
 def plot_top_carparks(df, title="Top Car Parks by Available Lots", save_path=None):
     """Create a bar chart of top car parks by availability"""
@@ -673,6 +699,23 @@ def corrlation_matrix_URA_dataset(df, save_path):
         
     return plt
 
+def correlation_matrix_ml_variables(df, save_path):
+    df_encoded = df.copy()
+    bool_cols = df_encoded.select_dtypes(include='bool').columns
+    df_encoded[bool_cols] = df_encoded[bool_cols].astype(int)
+
+    correlation_matrix = df_encoded[['is_traffic', 'total_lots', 'parking_rate', 'utilisation_rate']].corr()
+
+    plt.figure(figsize=(10, 6))
+    sns.heatmap(correlation_matrix, annot=True, cmap='Blues', fmt=".2f")
+    plt.title("Correlation Matrix")
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f"Chart saved to {save_path}")
+        
+    return plt
 
 def main():
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -798,6 +841,12 @@ def main():
         corrlation_matrix_URA_dataset(df_URA_merged, save_path=f"{OUTPUT_DIR}/correlation_matrix_{timestamp}.png" if SAVE_CHARTS else None)
     else:
         print('No Merged Data found')
+
+    df_ml_variables = get_ml_df()
+    if not df_ml_variables.empty:
+        correlation_matrix_ml_variables(df_ml_variables, save_path=f"{OUTPUT_DIR}/correlation_matrix_ml_{timestamp}.png" if SAVE_CHARTS else None)
+    else:
+        print("ML Variables cannot be found")
     
 
     client.close()
@@ -805,6 +854,7 @@ def main():
     
     # Display all figures (if not in a non-interactive environment)
     return {"parent_dir":"/opt/airflow/reports"}
+
 
 if __name__ == "__main__":
     main()
