@@ -2,29 +2,16 @@ from __future__ import annotations
 import logging
 import os
 import pendulum 
-from datetime import datetime, timedelta
-import joblib
-import numpy as np
 import pandas as pd
-from geopy.distance import geodesic
 
 from airflow.decorators import dag, task
-from airflow.models.param import Param
-# from airflow.operators.python import get_current_context
-
-from google.cloud import bigquery
-from google.oauth2 import service_account
-
-from sklearn.linear_model import SGDRegressor
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
 
 # import utils
-from dags.modules.ml_utils import  (
+from modules.ml_utils import  (
     create_feature_matrix,
     initial_train_and_save
 )
-from dags.modules.bigquery_utils import (
+from modules.bigquery_utils import (
     setup_bigquery_client, run_query
 )
 
@@ -62,7 +49,7 @@ def initial_training_dag():
         """
         client, _ = setup_bigquery_client(KEY_PATH)
         start_date_pend = pendulum.parse("2025-01-01T00:00:00+08:00")
-        end_date_pend = pendulum.now("Asia/Singapore").subtract(weeks=1)
+        end_date_pend = pendulum.now("Asia/Singapore").subtract(days=3)
         buffer_start_pend = start_date_pend.subtract(hours=8)
         buffer_end_pend = end_date_pend.subtract(hours=1)
 

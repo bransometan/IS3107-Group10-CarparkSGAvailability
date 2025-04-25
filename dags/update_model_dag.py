@@ -2,22 +2,15 @@ from __future__ import annotations
 import logging
 import os
 import pendulum 
-from datetime import datetime, timedelta
+from datetime import timedelta
 import joblib
-import numpy as np
 import pandas as pd
-from geopy.distance import geodesic
 
 from airflow.decorators import dag, task
 from airflow.models.param import Param
-# from airflow.operators.python import get_current_context
 
-from google.cloud import bigquery
-from google.oauth2 import service_account
-
-from sklearn.linear_model import SGDRegressor
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
+
 
 # import utils
 from modules.ml_utils import create_feature_matrix
@@ -43,8 +36,8 @@ TABLES = {
 @dag(
     dag_id='carpark_model_weekly_update',
     schedule='@weekly', # update model once a week
-    start_date=pendulum.datetime(2025, 4, 20, tz="Asia/Singapore"), 
-    catchup=False, # Don't run for past missed schedules
+    start_date=pendulum.datetime(2025, 4, 25, tz="Asia/Singapore"), 
+    catchup=False, # don't run for past missed schedules
     default_args={
         "owner": "airflow",
         "retries": 1,
@@ -91,7 +84,7 @@ def model_update_dag():
     @task
     def query_weekly_data_from_bq(time_range: dict):
         """Queries BigQuery for data within the specified time range."""
-        client, _ = setup_bigquery_client()
+        client, _ = setup_bigquery_client(KEY_PATH)
         data_start = time_range["data_start_ts"]
         data_end = time_range["data_end_ts"]
         buffer_start = time_range["buffer_start_ts"]
@@ -208,14 +201,8 @@ def model_update_dag():
         feature_matrix = create_feature_matrix(data_dict)
 
         if feature_matrix.empty:
-             logging.warning("Feature matrix is empty after processing. No data to update model with.")
-             # return  empty dataframes with correct columns
-            #  feature_cols = [
-            #     "hour_of_day", "day_of_week", "is_weekend", "is_holiday",
-            #     "rainfall", "is_traffic", "has_nearby_event",
-            #     "total_lots", "parking_rate"
-            #  ]
-             return "not updated"
+            logging.warning("Feature matrix is empty after processing. No data to update model with.")
+            return "not updated"
 
         X_new = feature_matrix.drop(columns="utilisation_rate")
         y_new = feature_matrix["utilisation_rate"]

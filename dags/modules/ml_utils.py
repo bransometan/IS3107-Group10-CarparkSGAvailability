@@ -15,7 +15,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 LOCAL_MODEL_DIR = "./model" 
-LOCAL_MODEL_FILENAME = "sgd_regressor_pipeline.joblib"
+LOCAL_MODEL_FILENAME = "/sgd_regressor_pipeline.joblib"
 LOCAL_MODEL_PATH = os.path.join(LOCAL_MODEL_DIR, LOCAL_MODEL_FILENAME)
 
 # --- Feature Engineering ---
