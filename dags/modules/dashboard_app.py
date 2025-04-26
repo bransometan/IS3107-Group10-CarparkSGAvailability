@@ -10,6 +10,11 @@ from haversine import haversine, Unit
 from tqdm import tqdm
 import numpy as np
 
+from scrape_all_data import fetch_all_data
+from ml_utils import  (
+    create_feature_matrix,
+)
+
 # Configuration
 KEY_PATH = '/keys/is3107-457309-0e9066063708.json'
 # KEY_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'key', 'is3107-457309-0e9066063708.json'))
@@ -202,6 +207,43 @@ def get_carpark_merge_data(client, project_id):
     """
 
     return run_query(client, query)
+
+def get_carpark_list(client, project_id):
+    """Query BigQuery for carpark data"""
+    query = f"""
+    SELECT 
+        carparkNo, 
+        latitude, 
+        longitude, 
+        parkCapacity,
+    FROM 
+        `{project_id}.{DATASET_ID}.ura_carpark_list`
+    WHERE
+        latitude IS NOT NULL AND longitude IS NOT NULL
+    """
+    
+    return run_query(client, query)
+
+def get_ml_df():
+    data_dict = fetch_all_data()
+
+    RENAME_MAP = {
+        "ura_carpark_availability": "availability",
+        "ura_carpark_list": "list",
+        "ura_season_carpark_list": "season_list", 
+        "weather_rainfall": "weather",
+        "events": "events",
+        "traffic_incidents": "traffic",
+        "public_holidays": "holidays"
+    }
+
+    renamed_data = rename_keys(data_dict, RENAME_MAP)
+
+    feature_matrix = create_feature_matrix(renamed_data)
+    return feature_matrix
+
+def rename_keys(data: dict, rename_map: dict) -> dict:
+    return {rename_map.get(k, k): v for k, v in data.items()}
 
 def plot_top_carparks(df, title="Top Car Parks by Available Lots", save_path=None):
     """Create a bar chart of top car parks by availability"""
@@ -575,25 +617,38 @@ def assign_region(lat, lon):
 
 def plot_histogram_nearest_next_carpark(df, save_path=None):
     nearest_distances = []
+   
+    unique_carparks = df.groupby('carparkNo')[['latitude', 'longitude']].first().reset_index()
 
-    df_filtered = df.dropna(subset=['latitude', 'longitude']).reset_index(drop=True)
-
-    for i, row in tqdm(df_filtered.iterrows(), total=len(df_filtered)):
+    for i, row in tqdm(unique_carparks.iterrows(), total=len(unique_carparks)):
         current_loc = (row['latitude'], row['longitude'])
-        others = df_filtered.drop(index=i)
 
+        # Remove self
+        others = unique_carparks.drop(index=i)
+
+        # Calculate distances to all other unique carparks
         others['dist'] = others.apply(
             lambda other: haversine(current_loc, (other['latitude'], other['longitude']), unit=Unit.METERS),
             axis=1
         )
 
+        # Get minimum distance
         min_dist = others['dist'].min()
-        nearest_distances.append(min_dist)
-    df_filtered['nearest_distance_m'] = nearest_distances
+        nearest_distances.append({
+            'carparkNo': row['carparkNo'],
+            'nearest_distance_m': min_dist
+        })
+
+    # Merge back into the original dataframe (broadcast per carparkNo)
+    df = df.merge(
+        pd.DataFrame(nearest_distances),
+        on='carparkNo',
+        how='left'
+    )
 
     # Plot histogram
     plt.figure(figsize=(10, 6))
-    plt.hist(df_filtered['nearest_distance_m'], bins=30, color='skyblue', edgecolor='black')
+    plt.hist(df['nearest_distance_m'], bins=30, color='skyblue', edgecolor='black')
     plt.title("Histogram of Nearest Carpark Distances")
     plt.xlabel("Distance to Nearest Carpark (meters)")
     plt.ylabel("Number of Carparks")
@@ -622,7 +677,7 @@ def plot_distribution_parking(df, save_path):
     plt.xlabel('Weekday Rate ($)')
     plt.ylabel('Frequency')
     plt.tight_layout()
-    plt.show()
+    # plt.show()
 
     if save_path:
             plt.savefig(save_path, dpi=300, bbox_inches='tight')
@@ -637,7 +692,31 @@ def corrlation_matrix_URA_dataset(df, save_path):
     sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt='.2f', linewidths=0.5)
     plt.title('Correlation Heatmap of Parking Rates and Capacity')
     plt.tight_layout()
-    plt.show()
+
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f"Chart saved to {save_path}")
+        
+    return plt
+
+def correlation_matrix_ml_variables(df, save_path):
+    df_encoded = df.copy()
+    bool_cols = df_encoded.select_dtypes(include='bool').columns
+    df_encoded[bool_cols] = df_encoded[bool_cols].astype(int)
+
+    correlation_matrix = df_encoded[['is_traffic', 'total_lots', 'parking_rate', 'utilisation_rate']].corr()
+
+    plt.figure(figsize=(10, 6))
+    sns.heatmap(correlation_matrix, annot=True, cmap='Blues', fmt=".2f")
+    plt.title("Correlation Matrix")
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f"Chart saved to {save_path}")
+        
+    return plt
+
 def main():
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     print(f"=== Starting visualization process at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ===")
@@ -695,11 +774,16 @@ def main():
         plot_regional_availability_trends(availability_df, save_path=f"{OUTPUT_DIR}/regional_availability_trends_{timestamp}.png" if SAVE_CHARTS else None)
         print("Plotting pie chart of region's car parks...")
         plot_carparks_by_region_pie(availability_df, save_path=f"{OUTPUT_DIR}/carpark_availability_by_region_pie_{timestamp}.png" if SAVE_CHARTS else None)
-        print("Plotting histogram of the next nearest carpark...")
-        plot_histogram_nearest_next_carpark(availability_df,  save_path=f"{OUTPUT_DIR}/nearest_carpark_histogram_{timestamp}.png" if SAVE_CHARTS else None)
         
     else:
         print("No car park availability data found")
+
+    capark_list_df = get_carpark_list(client, project_id)
+    if not capark_list_df.empty:
+        print("Plotting histogram of the next nearest carpark...")
+        plot_histogram_nearest_next_carpark(capark_list_df,  save_path=f"{OUTPUT_DIR}/nearest_carpark_histogram_{timestamp}.png" if SAVE_CHARTS else None)
+    else:
+        print("No carpark list is found")
     
     bubble_df = get_bubble_chart_data(client, project_id)
 
@@ -757,6 +841,12 @@ def main():
         corrlation_matrix_URA_dataset(df_URA_merged, save_path=f"{OUTPUT_DIR}/correlation_matrix_{timestamp}.png" if SAVE_CHARTS else None)
     else:
         print('No Merged Data found')
+
+    df_ml_variables = get_ml_df()
+    if not df_ml_variables.empty:
+        correlation_matrix_ml_variables(df_ml_variables, save_path=f"{OUTPUT_DIR}/correlation_matrix_ml_{timestamp}.png" if SAVE_CHARTS else None)
+    else:
+        print("ML Variables cannot be found")
     
 
     client.close()
@@ -764,6 +854,7 @@ def main():
     
     # Display all figures (if not in a non-interactive environment)
     return {"parent_dir":"/opt/airflow/reports"}
+
 
 if __name__ == "__main__":
     main()
