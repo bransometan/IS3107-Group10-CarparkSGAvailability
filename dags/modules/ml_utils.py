@@ -280,7 +280,7 @@ def create_feature_matrix(data_dict):
         raise ValueError(f"Missing required tables in data_dict. Need: {required_tables}")
 
     ura_carpark_availability = data_dict['availability'].copy()
-    ura_carpark_list = data_dict['list'].copy()
+    ura_carpark_list = data_dict['list'].drop_duplicates().copy()
     weather_rainfall = data_dict['weather'].dropna()
     events = data_dict['events'].dropna()
     traffic_incidents = data_dict['traffic'].dropna()

@@ -70,6 +70,12 @@ This project provides tools for scraping, transforming, and visualizing car park
    - Creates an interactive map of car parks.
    - Saves visualizations to the `reports/` directory.
 
+### 4. **Training ML model**
+   To do model training, run the `carpark_model_initial_training` DAG in Airflow. This automatically fetches historical data
+   from BigQuery, performs preprocessing, trains the SGDRegressor model, and stores under `dags/model/sgd_regressor_pipeline.joblib`. 
+
+   Weekly updating to incorporate new data is done automatically by the `carpark_model_weekly_update_dag` as long as the model exists in `dags/model`. Example model evaluation is in `model/model_eval.py`. 
+
 ## Directory Structure
 
 ```
